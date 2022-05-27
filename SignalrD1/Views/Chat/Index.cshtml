@@ -1,0 +1,62 @@
+﻿@model List<message>
+@{
+	ViewData["Title"] = "Index";
+}
+
+<h1>chat</h1>
+<input type="text" id="txt" />
+<input type="button" value="send" onclick="send()" />
+<div class="imessage" id="div">
+	@foreach (var item in Model)
+	{
+		@*<li>@item.name : @item.txt</li>*@
+		<p class="from-them">@item.name : @item.txt</p>
+	}
+</dv>
+
+@section Scripts{
+	<script src="~/lib/microsoft/signalr/dist/browser/signalr.js"></script>
+	<script>
+		name = prompt("please enter your message");
+		//define connection
+		con = new signalR.HubConnectionBuilder().withUrl("/chathub").build();
+
+		//start connecntion
+		con.start();
+		//alert("strat connection")
+
+		//subscribe
+		//con.on("newmessage",function(n,m){
+		//   // alert("new messge from server event")
+
+		//    var item=document.createElement("li");
+		//    item.appendChild(document.createTextNode(n+":"+m));
+		//    document.getElementById("ul").appendChild(item);
+
+		//  //  $("#ul").append("<li>"+n+" : "+m+"</li>")
+		//})
+
+		con.on("newmessage", function(m){
+		// alert("new messge from server event")
+
+		var item = document.createElement("p");
+		item.classList.add("from-them");
+		item.appendChild(document.createTextNode(m.name + " : " + m.txt));
+		document.getElementById("div").appendChild(item);
+
+		  //  $("#ul").append("<li>"+n+" : "+m+"</li>")
+		})
+
+		//call server method
+		function send(){
+			//  alert("call server method");
+			//  con.invoke("sendmessage",name,document.getElementById("txt").value);
+
+			var obj={
+				name:name,
+				txt:document.getElementById("txt").value
+			};
+			con.invoke("sendmessage",obj);
+		}
+	</script>
+}
